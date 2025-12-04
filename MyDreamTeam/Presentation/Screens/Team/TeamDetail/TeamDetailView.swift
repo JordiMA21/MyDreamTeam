@@ -26,19 +26,6 @@ struct TeamDetailView: View {
                         teamRosterView()
                     }
                 }
-            } else {
-                VStack(spacing: 16) {
-                    Image(systemName: "exclamationmark.circle")
-                        .font(.system(size: 48))
-                        .foregroundColor(.yellow)
-                    Text("No se pudieron cargar los datos del equipo")
-                        .font(.headline)
-                    Button("Reintentar") {
-                        viewModel.loadTeamData()
-                    }
-                    .buttonStyle(.borderedProminent)
-                }
-                .padding()
             }
         }
         .navigationBarTitleDisplayMode(.inline)

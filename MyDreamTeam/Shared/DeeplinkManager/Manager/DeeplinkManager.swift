@@ -52,7 +52,7 @@ class DeepLinkManager: ObservableObject, DeepLinkManagerProtocol {
         switch self.screen {
         case .none:
             /// Change correct navigation screen in destination app
-            navigator.replaceRoot(to: HomeBuilder.build())
+            navigator.replaceRoot(to: EstablishmentBuilder().build(with: .delivery))
         }
     }
 

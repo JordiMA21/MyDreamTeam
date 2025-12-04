@@ -17,8 +17,7 @@ class TeamRepository: TeamRepositoryProtocol {
             let responseDTO = try await dataSource.getTeam(id: id)
             return responseDTO.toDomain()
         } catch {
-            // Return mock data when API fails
-            return MockTeamData.sampleTeam
+            throw errorHandler.handle(error)
         }
     }
 
@@ -27,8 +26,7 @@ class TeamRepository: TeamRepositoryProtocol {
             let responseDTO = try await dataSource.getTeamPlayers(teamId: teamId)
             return responseDTO.map { $0.toDomain() }
         } catch {
-            // Return mock data when API fails
-            return MockTeamData.samplePlayers
+            throw errorHandler.handle(error)
         }
     }
 

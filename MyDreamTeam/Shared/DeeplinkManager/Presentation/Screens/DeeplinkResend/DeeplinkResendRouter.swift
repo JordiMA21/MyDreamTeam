@@ -10,6 +10,6 @@ import Foundation
 class DeeplinkResendRouter: Router {
     // TODO: -  Remove in destination app
     func goToMainMenu() {
-        navigator.replaceRoot(to: HomeBuilder.build())
+        navigator.replaceRoot(to: EstablishmentBuilder().build(with: .delivery))
     }
 }

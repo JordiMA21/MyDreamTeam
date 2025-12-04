@@ -23,9 +23,6 @@ class PlayerDetailViewModel: ObservableObject {
         Task {
             do {
                 isLoading = true
-                // Simulate network delay
-                try await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
-
                 player = try await playerUseCase.getPlayer(id: playerId)
                 isLoading = false
             } catch {

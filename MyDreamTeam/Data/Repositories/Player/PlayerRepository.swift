@@ -17,8 +17,7 @@ class PlayerRepository: PlayerRepositoryProtocol {
             let responseDTO = try await dataSource.getPlayer(id: id)
             return responseDTO.toDomain()
         } catch {
-            // Return mock data when API fails
-            return MockPlayerData.samplePlayer
+            throw errorHandler.handle(error)
         }
     }
 

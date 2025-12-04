@@ -25,9 +25,6 @@ class TeamDetailViewModel: ObservableObject {
         Task {
             do {
                 isLoading = true
-                // Simulate network delay
-                try await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
-
                 team = try await teamUseCase.getTeam(id: teamId)
                 players = try await teamUseCase.getTeamPlayers(teamId: teamId)
 

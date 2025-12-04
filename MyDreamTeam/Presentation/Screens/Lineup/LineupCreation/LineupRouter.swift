@@ -2,10 +2,12 @@ import SwiftUI
 
 class LineupRouter: Router {
     func goToPlayerDetail(playerId: Int) {
-        navigator.push(to: PlayerDetailBuilder.build(playerId: playerId))
+        let view = PlayerDetailBuilder().build(playerId: playerId)
+        navigator.push(to: view)
     }
 
     func goToTeamDetail(teamId: Int) {
-        navigator.push(to: TeamDetailBuilder.build(teamId: teamId))
+        let view = TeamDetailBuilder().build(teamId: teamId)
+        navigator.push(to: view)
     }
 }

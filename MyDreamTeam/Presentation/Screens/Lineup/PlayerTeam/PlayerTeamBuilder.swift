@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum PlayerTeamBuilder {
+class PlayerTeamBuilder {
     static func build(teamId: Int) -> some View {
         let router = PlayerTeamRouter()
         let lineupUseCase = LineupUseCase(

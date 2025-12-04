@@ -1,7 +1,7 @@
 import Foundation
 
-enum LineupBuilder {
-    static func build(teamId: Int) -> LineupView {
+class LineupBuilder {
+    func build(teamId: Int) -> LineupView {
         let useCase = LineupUseCase(repository: LineupLocalRepository())
         let teamUseCase = TeamDetailContainer.makeUseCase()
         let router = LineupRouter()

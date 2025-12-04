@@ -33,9 +33,6 @@ class PlayerTeamViewModel: ObservableObject {
         Task {
             do {
                 isLoading = true
-                // Simulate network delay
-                try await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
-
                 // Load or create lineup
                 do {
                     lineup = try await lineupUseCase.getLineup(teamId: teamId)

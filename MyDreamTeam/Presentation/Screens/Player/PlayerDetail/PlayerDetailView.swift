@@ -30,19 +30,6 @@ struct PlayerDetailView: View {
                             .frame(height: 20)
                     }
                 }
-            } else {
-                VStack(spacing: 16) {
-                    Image(systemName: "exclamationmark.circle")
-                        .font(.system(size: 48))
-                        .foregroundColor(.yellow)
-                    Text("No se pudieron cargar los datos del jugador")
-                        .font(.headline)
-                    Button("Reintentar") {
-                        viewModel.loadPlayer()
-                    }
-                    .buttonStyle(.borderedProminent)
-                }
-                .padding()
             }
         }
         .navigationBarTitleDisplayMode(.inline)

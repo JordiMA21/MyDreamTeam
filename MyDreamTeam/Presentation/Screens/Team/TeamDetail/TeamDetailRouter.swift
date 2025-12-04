@@ -2,7 +2,8 @@ import SwiftUI
 
 class TeamDetailRouter: Router {
     func navigateToPlayerDetail(playerId: Int) {
-        navigator.push(to: PlayerDetailBuilder.build(playerId: playerId))
+        let view = PlayerDetailBuilder().build(playerId: playerId)
+        navigator.push(to: view)
     }
 
     func navigateToTeamComparison() {
