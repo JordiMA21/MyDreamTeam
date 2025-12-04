@@ -9,6 +9,7 @@ struct MyDreamTeamApp: App {
         WindowGroup {
             NavigatorRootView(root: HomeBuilder.build())
                 .environment(Navigator.shared)
+                .environment(SelectedLeagueManager.shared)
         }
     }
 }

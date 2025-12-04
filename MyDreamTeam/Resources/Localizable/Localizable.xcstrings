@@ -4,6 +4,9 @@
     "" : {
 
     },
+    "¡Oferta realizada!" : {
+
+    },
     "(%lld)" : {
 
     },
@@ -35,6 +38,12 @@
     "%lld members" : {
 
     },
+    "%lld miembros" : {
+
+    },
+    "%lld subastas activas" : {
+
+    },
     "%lld-%lld-%lld" : {
       "localizations" : {
         "es" : {
@@ -55,7 +64,19 @@
         }
       }
     },
+    "%lldm" : {
+
+    },
     "•" : {
+
+    },
+    "€%@" : {
+
+    },
+    "8 subastas" : {
+
+    },
+    "Accede al mercado de subastas" : {
 
     },
     "Add to Team" : {
@@ -67,9 +88,6 @@
     "Alineación" : {
 
     },
-    "All Leagues" : {
-
-    },
     "auth_changeEmailSent" : {
 
     },
@@ -77,9 +95,6 @@
 
     },
     "auth_sendAgain" : {
-
-    },
-    "Browse and join leagues" : {
 
     },
     "Build your fantasy team and compete with friends" : {
@@ -92,9 +107,6 @@
 
     },
     "changeEmailCompletedTitle" : {
-
-    },
-    "Coming Soon" : {
 
     },
     "common_accept" : {
@@ -119,6 +131,9 @@
 
     },
     "Detalle del Jugador" : {
+
+    },
+    "Detalles de Subasta: %@" : {
 
     },
     "Diferencia" : {
@@ -166,10 +181,10 @@
     "Información Adicional" : {
 
     },
-    "Join or create a league to get started" : {
+    "Ir al Mercado de Subastas" : {
 
     },
-    "League discovery feature coming soon" : {
+    "Join or create a league to get started" : {
 
     },
     "Login" : {
@@ -181,10 +196,16 @@
     "Logout" : {
 
     },
+    "Mercado de Subastas" : {
+
+    },
     "Mi Alineación" : {
 
     },
     "Mi Equipo" : {
+
+    },
+    "Mis Ligas" : {
 
     },
     "My Leagues" : {
@@ -199,6 +220,9 @@
     "No hay jugadores disponibles" : {
 
     },
+    "No hay subastas activas en este momento" : {
+
+    },
     "No Leagues" : {
 
     },
@@ -206,6 +230,12 @@
 
     },
     "No Players Found" : {
+
+    },
+    "Oferta Actual" : {
+
+    },
+    "Oferta Mínima" : {
 
     },
     "Pie" : {
@@ -220,10 +250,16 @@
     "points" : {
 
     },
+    "posición" : {
+
+    },
     "Posición" : {
 
     },
     "pts" : {
+
+    },
+    "Pujar" : {
 
     },
     "Puntos" : {
@@ -250,6 +286,12 @@
     "Sin Jugadores" : {
 
     },
+    "Sin Ligas" : {
+
+    },
+    "Sin Subastas" : {
+
+    },
     "Stats" : {
 
     },
@@ -257,6 +299,9 @@
 
     },
     "Tu equipo está vacío. Crea una alineación para comenzar." : {
+
+    },
+    "Únete a una liga para acceder al mercado" : {
 
     },
     "Ver equipo" : {

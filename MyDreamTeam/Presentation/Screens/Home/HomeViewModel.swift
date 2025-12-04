@@ -50,6 +50,10 @@ final class HomeViewModel: ObservableObject {
         router.navigateToAuctionMarket(leagueId: league.id)
     }
 
+    func setupLeagueManager() {
+        SelectedLeagueManager.shared.setDefaultLeague(userLeagues)
+    }
+
     // MARK: - Private Methods
 
     private func setupMockData() {

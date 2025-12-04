@@ -11,6 +11,7 @@ import SwiftUI
 
 struct HomeView: View {
     @StateObject private var viewModel: HomeViewModel
+    @Environment(SelectedLeagueManager.self) var leagueManager
 
     init(viewModel: HomeViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -21,18 +22,32 @@ struct HomeView: View {
             // Navigation Bar
             navBar
 
+            // League Selector
+            if viewModel.isLoggedIn {
+                leagueSelectorBar
+            }
+
             // Content Area based on selected tab
             tabContent
                 .frame(maxHeight: .infinity)
 
             // Custom Tab Bar
-            customTabBar
+            if viewModel.isLoggedIn {
+                customTabBar
+            }
+        }
+        .ignoresSafeArea(edges: .top)
+        .onAppear {
+            viewModel.setupLeagueManager()
         }
     }
 
     // MARK: - Navigation Bar
 
     private var navBar: some View {
+        ZStack {
+            Color.blue
+
             HStack {
                 Image(systemName: "sportscourt.fill")
                     .font(.system(size: 24))
@@ -63,9 +78,73 @@ struct HomeView: View {
                 .background(Color.white.opacity(0.15))
                 .cornerRadius(8)
             }
-            .background(.blue)
             .padding(.horizontal, 20)
+        }
         .frame(height: 60)
+        .ignoresSafeArea(edges: .top)
+    }
+
+    // MARK: - League Selector Bar
+
+    private var leagueSelectorBar: some View {
+        VStack(spacing: 12) {
+            // League dropdown/selector
+            Menu {
+                ForEach(viewModel.userLeagues) { league in
+                    Button(action: {
+                        leagueManager.selectLeague(league)
+                    }) {
+                        HStack {
+                            Text(league.name)
+                            if leagueManager.selectedLeagueId == league.id {
+                                Image(systemName: "checkmark")
+                                    .foregroundColor(.blue)
+                            }
+                        }
+                    }
+                }
+            } label: {
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Liga Actual")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.secondary)
+
+                        if let league = leagueManager.selectedLeague {
+                            Text(league.name)
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.primary)
+                        }
+                    }
+
+                    Spacer()
+
+                    HStack(spacing: 12) {
+                        VStack(alignment: .trailing, spacing: 2) {
+                            Text("Posición")
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundColor(.secondary)
+
+                            if let league = leagueManager.selectedLeague {
+                                Text("#\(league.rank)")
+                                    .font(.system(size: 16, weight: .bold))
+                                    .foregroundColor(.blue)
+                            }
+                        }
+
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.blue)
+                    }
+                }
+                .padding(12)
+                .background(Color(.systemGray6))
+                .cornerRadius(10)
+            }
+            .padding(.horizontal, 16)
+        }
+        .padding(.vertical, 12)
+        .background(Color(.systemBackground))
     }
 
     // MARK: - Tab Content
@@ -79,9 +158,9 @@ struct HomeView: View {
             case 1:
                 MyTeamBuilder.build()
             case 2:
-                PlayersBuilder.build()
+                ClassificationBuilder.build()
             case 3:
-                leaguesTabContent
+                AuctionMarketBuilder.build(leagueId: leagueManager.selectedLeagueId)
             default:
                 homeTabContent
             }
@@ -90,180 +169,107 @@ struct HomeView: View {
         }
     }
 
+    // MARK: - Home Tab Content
+
     private var homeTabContent: some View {
         VStack(spacing: 0) {
             // Header
             VStack(alignment: .leading, spacing: 8) {
-                Text("My Leagues")
+                Text("Mi Liga")
                     .font(.system(size: 28, weight: .bold))
                     .foregroundColor(.primary)
 
-                Text("\(viewModel.userLeagues.count) active leagues")
-                    .font(.system(size: 14))
-                    .foregroundColor(.secondary)
+                if let league = leagueManager.selectedLeague {
+                    Text("\(league.members) miembros - \(league.points) puntos")
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
 
-            // Leagues List
-            if viewModel.userLeagues.isEmpty {
-                VStack(spacing: 20) {
-                    Spacer()
+            // League Info Cards
+            ScrollView {
+                VStack(spacing: 16) {
+                    if let league = leagueManager.selectedLeague {
+                        // Stats Card
+                        VStack(spacing: 16) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Tu Posición")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(.secondary)
 
-                    Image(systemName: "list.bullet")
-                        .font(.system(size: 60))
-                        .foregroundColor(.blue)
+                                    Text("#\(league.rank)")
+                                        .font(.system(size: 32, weight: .bold))
+                                        .foregroundColor(.blue)
+                                }
 
-                    Text("No Leagues")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(.primary)
+                                Spacer()
 
-                    Text("Join or create a league to get started")
-                        .font(.system(size: 14))
-                        .foregroundColor(.secondary)
+                                VStack(alignment: .trailing, spacing: 4) {
+                                    Text("Puntos")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(.secondary)
 
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-                ScrollView {
-                    VStack(spacing: 12) {
-                        ForEach(viewModel.userLeagues) { league in
-                            leagueCard(league)
+                                    Text("\(league.points)")
+                                        .font(.system(size: 32, weight: .bold))
+                                        .foregroundColor(.green)
+                                }
+                            }
+
+                            Divider()
+
+                            HStack(spacing: 16) {
+                                VStack(alignment: .center, spacing: 6) {
+                                    Image(systemName: "person.3.fill")
+                                        .font(.system(size: 20))
+                                        .foregroundColor(.blue)
+
+                                    Text("\(league.members)")
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundColor(.primary)
+
+                                    Text("Miembros")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(.secondary)
+                                }
+                                .frame(maxWidth: .infinity)
+
+                                Divider()
+                                    .frame(height: 40)
+
+                                VStack(alignment: .center, spacing: 6) {
+                                    Image(systemName: "gavel.fill")
+                                        .font(.system(size: 20))
+                                        .foregroundColor(.green)
+
+                                    Text("8")
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundColor(.primary)
+
+                                    Text("Subastas")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(.secondary)
+                                }
+                                .frame(maxWidth: .infinity)
+                            }
                         }
+                        .padding(16)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(12)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
                 }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(.systemBackground))
     }
 
-    private var leaguesTabContent: some View {
-        VStack(spacing: 0) {
-            // Header
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Mis Ligas")
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundColor(.primary)
-
-                Text("Accede al mercado de subastas")
-                    .font(.system(size: 14))
-                    .foregroundColor(.secondary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 16)
-
-            // Leagues List
-            if viewModel.userLeagues.isEmpty {
-                VStack(spacing: 20) {
-                    Spacer()
-
-                    Image(systemName: "trophy.fill")
-                        .font(.system(size: 60))
-                        .foregroundColor(.orange)
-
-                    Text("Sin Ligas")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(.primary)
-
-                    Text("Únete a una liga para acceder al mercado")
-                        .font(.system(size: 14))
-                        .foregroundColor(.secondary)
-
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-                ScrollView {
-                    VStack(spacing: 12) {
-                        ForEach(viewModel.userLeagues) { league in
-                            leagueAuctionCard(league)
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
-                }
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemBackground))
-    }
-
-    private func leagueAuctionCard(_ league: League) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(league.name)
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.primary)
-
-                    HStack(spacing: 20) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "person.2.fill")
-                                .font(.system(size: 12))
-                                .foregroundColor(.blue)
-                            Text("\(league.members) miembros")
-                                .font(.system(size: 12))
-                                .foregroundColor(.secondary)
-                        }
-
-                        HStack(spacing: 4) {
-                            Image(systemName: "gavel.fill")
-                                .font(.system(size: 12))
-                                .foregroundColor(.green)
-                            Text("8 subastas")
-                                .font(.system(size: 12))
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                }
-
-                Spacer()
-
-                VStack(alignment: .trailing, spacing: 6) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "star.fill")
-                            .font(.system(size: 14))
-                            .foregroundColor(.orange)
-                        Text("#\(league.rank)")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(.primary)
-                    }
-
-                    Text("posición")
-                        .font(.system(size: 12))
-                        .foregroundColor(.secondary)
-                }
-            }
-
-            Divider()
-                .padding(.vertical, 4)
-
-            Button(action: {
-                viewModel.didSelectLeagueForAuction(league)
-            }) {
-                HStack {
-                    Image(systemName: "gavel.fill")
-                        .font(.system(size: 14, weight: .semibold))
-                    Text("Ir al Mercado de Subastas")
-                        .font(.system(size: 14, weight: .semibold))
-                }
-                .frame(maxWidth: .infinity)
-                .padding(10)
-                .background(Color.green)
-                .foregroundColor(.white)
-                .cornerRadius(8)
-            }
-        }
-        .padding(16)
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
-    }
+    // MARK: - Logged Out Content
 
     private var loggedOutContent: some View {
         VStack(spacing: 20) {
@@ -319,84 +325,6 @@ struct HomeView: View {
         .background(Color(.systemBackground))
     }
 
-
-    private func leagueCard(_ league: League) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(league.name)
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.primary)
-
-                    HStack(spacing: 20) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "person.2.fill")
-                                .font(.system(size: 12))
-                                .foregroundColor(.blue)
-                            Text("\(league.members) members")
-                                .font(.system(size: 12))
-                                .foregroundColor(.secondary)
-                        }
-
-                        HStack(spacing: 4) {
-                            Image(systemName: "star.fill")
-                                .font(.system(size: 12))
-                                .foregroundColor(.orange)
-                            Text("Rank #\(league.rank)")
-                                .font(.system(size: 12))
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                }
-
-                Spacer()
-
-                VStack(alignment: .trailing, spacing: 6) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "bolt.fill")
-                            .font(.system(size: 14))
-                            .foregroundColor(.orange)
-                        Text("\(league.points)")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(.primary)
-                    }
-
-                    Text("points")
-                        .font(.system(size: 12))
-                        .foregroundColor(.secondary)
-                }
-            }
-
-            Divider()
-                .padding(.vertical, 4)
-
-            HStack {
-                Button(action: {}) {
-                    Text("View")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.blue)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 36)
-                        .background(Color.blue.opacity(0.1))
-                        .cornerRadius(8)
-                }
-
-                Button(action: {}) {
-                    Text("Stats")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.blue)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 36)
-                        .background(Color.blue.opacity(0.1))
-                        .cornerRadius(8)
-                }
-            }
-        }
-        .padding(16)
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
-    }
-
     // MARK: - Custom Tab Bar
 
     private var customTabBar: some View {
@@ -437,18 +365,18 @@ struct HomeView: View {
         switch index {
         case 0: return "house.fill"
         case 1: return "rectangle.grid.1x2.fill"
-        case 2: return "person.3.fill"
-        case 3: return "trophy.fill"
+        case 2: return "list.number"
+        case 3: return "gavel.fill"
         default: return "questionmark"
         }
     }
 
     private func title(for index: Int) -> String {
         switch index {
-        case 0: return "Home"
+        case 0: return "Inicio"
         case 1: return "Mi Equipo"
-        case 2: return "Jugadores"
-        case 3: return "Ligas"
+        case 2: return "Clasificación"
+        case 3: return "Subastas"
         default: return ""
         }
     }
@@ -460,4 +388,5 @@ struct HomeView: View {
     let router = HomeRouter()
     let viewModel = HomeViewModel(router: router)
     return HomeView(viewModel: viewModel)
+        .environment(SelectedLeagueManager.shared)
 }
