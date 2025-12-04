@@ -92,7 +92,7 @@ final class FantasySquadRepository: FantasySquadRepositoryProtocol {
     func addTransfer(squadId: String, transfer: TransferEntity) async throws {
         do {
             let dto = transfer.toFirebaseDTO()
-            _ = try await dataSource.addTransfer(squadId: squadId, transfer: dto)
+            try await dataSource.addTransfer(squadId: squadId, transfer: dto)
         } catch let error as AppError {
             throw error
         } catch {
