@@ -60,8 +60,12 @@ struct HomeView: View {
                         .onChange(of: viewModel.isLoggedIn) { _, _ in
                             viewModel.toggleLoginStatus()
                         }
+                        .scaleEffect(0.8, anchor: .center)
                 }
-                .padding(.trailing, 10)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 8)
+                .background(Color.white.opacity(0.15))
+                .cornerRadius(8)
             }
             .padding(.horizontal, 20)
         }
