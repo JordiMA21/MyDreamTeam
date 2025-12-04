@@ -122,7 +122,7 @@ struct PlayerSelectionView: View {
             Text("Posición")
                 .font(.caption)
                 .foregroundStyle(.secondary)
-                .uppercase()
+                .textCase(.uppercase)
 
             HStack(spacing: 8) {
                 ForEach(["GK", "DEF", "MID", "FWD"], id: \.self) { position in
@@ -179,32 +179,25 @@ struct PlayerSelectionView: View {
                     emptyStateView()
                 } else {
                     ForEach(viewModel.filteredPlayers) { player in
-                        playerRowView(player)
+                        PlayerCardView(
+                            player: player.toPlayerEntity(),
+                            isSelected: viewModel.isPlayerSelected(player),
+                            onTap: {
+                                if viewModel.isPlayerSelected(player) {
+                                    viewModel.removePlayerFromSquad(player)
+                                } else {
+                                    viewModel.addPlayerToSquad(player)
+                                }
+                            },
+                            onCompare: viewModel.selectedPlayers.count > 0 && !viewModel.isPlayerSelected(player) ? {
+                                viewModel.compareWithPlayer(player)
+                            } : nil
+                        )
                     }
                 }
             }
             .padding(16)
         }
-    }
-
-    // MARK: - Player Row View
-
-    @ViewBuilder
-    private func playerRowView(_ player: PlayerEntity) -> some View {
-        PlayerCardView(
-            player: player,
-            isSelected: viewModel.isPlayerSelected(player),
-            onTap: {
-                if viewModel.isPlayerSelected(player) {
-                    viewModel.removePlayerFromSquad(player)
-                } else {
-                    viewModel.addPlayerToSquad(player)
-                }
-            },
-            onCompare: viewModel.selectedPlayers.count > 0 && !viewModel.isPlayerSelected(player) ? {
-                viewModel.compareWithPlayer(player)
-            } : nil
-        )
     }
 
     // MARK: - Empty State View
