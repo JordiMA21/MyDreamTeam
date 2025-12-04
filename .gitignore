@@ -1,0 +1,44 @@
+# Xcode
+build/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcworkspace
+xcuserdata/
+*.xcodeproj/xcuserdata/
+DerivedData/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Environment
+.env
+.env.local
+.DS_Store
+
+# Documentation generated
+docs/
+
+# Build artifacts
+*.app
+
+# IDE
+.vscode/
+*.swp
+*.swo
+*~
+
+# Firebase
+GoogleService-Info.plist
+
+# Notion backups
+Notion/

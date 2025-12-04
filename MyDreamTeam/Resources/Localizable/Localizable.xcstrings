@@ -1,0 +1,204 @@
+{
+  "sourceLanguage" : "es",
+  "strings" : {
+    "" : {
+
+    },
+    "(%lld)" : {
+
+    },
+    "#%lld" : {
+
+    },
+    "%lld años" : {
+
+    },
+    "%lld jugador%@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld jugador%2$@"
+          }
+        }
+      }
+    },
+    "%lld-%lld-%lld" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld-%2$lld-%3$lld"
+          }
+        }
+      }
+    },
+    "%lld/%lld" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld/%2$lld"
+          }
+        }
+      }
+    },
+    "•" : {
+
+    },
+    "Agregar a mi equipo" : {
+
+    },
+    "auth_changeEmailSent" : {
+
+    },
+    "auth_emailNotReceived" : {
+
+    },
+    "auth_sendAgain" : {
+
+    },
+    "Cambiar Formación" : {
+
+    },
+    "Campo" : {
+
+    },
+    "changeEmailCompletedTitle" : {
+
+    },
+    "common_accept" : {
+
+    },
+    "common_cancel" : {
+
+    },
+    "common_goToSettings" : {
+
+    },
+    "common_undo" : {
+
+    },
+    "Completitud" : {
+
+    },
+    "Desasignar" : {
+
+    },
+    "Detalle del Equipo" : {
+
+    },
+    "Detalle del Jugador" : {
+
+    },
+    "Diferencia" : {
+
+    },
+    "Documents" : {
+
+    },
+    "Edad" : {
+
+    },
+    "Estadísticas" : {
+
+    },
+    "Formación" : {
+
+    },
+    "Goles a favor" : {
+
+    },
+    "Goles en contra" : {
+
+    },
+    "Guardar Alineación" : {
+
+    },
+    "Images" : {
+
+    },
+    "Información" : {
+
+    },
+    "Información Adicional" : {
+
+    },
+    "Lineup Creation" : {
+
+    },
+    "Login" : {
+
+    },
+    "Mi Alineación" : {
+
+    },
+    "Mi Equipo" : {
+
+    },
+    "My Dream Team" : {
+
+    },
+    "Nacionalidad" : {
+
+    },
+    "No hay jugadores disponibles" : {
+
+    },
+    "No se pudieron cargar los datos del equipo" : {
+
+    },
+    "No se pudieron cargar los datos del jugador" : {
+
+    },
+    "Pie" : {
+
+    },
+    "Plantilla" : {
+
+    },
+    "Player Details" : {
+
+    },
+    "Player Team View" : {
+
+    },
+    "Posición" : {
+
+    },
+    "pts" : {
+
+    },
+    "Puntos" : {
+
+    },
+    "registerCompletedTitle" : {
+
+    },
+    "Reintentar" : {
+
+    },
+    "Seleccionar %@" : {
+
+    },
+    "Sin Jugadores" : {
+
+    },
+    "Team Details" : {
+
+    },
+    "Tu equipo está vacío. Crea una alineación para comenzar." : {
+
+    },
+    "Ver equipo" : {
+
+    },
+    "W-D-L" : {
+
+    },
+    "Welcome to your Football Team Manager" : {
+
+    }
+  },
+  "version" : "1.0"
+}

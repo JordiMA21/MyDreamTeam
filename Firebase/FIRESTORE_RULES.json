@@ -1,0 +1,119 @@
+{
+  "firestore": {
+    "rules": "rules_version = '2';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n\n    // ============================================\n    // HELPER FUNCTIONS\n    // ============================================\n\n    // Check if user is authenticated\n    function isAuthenticated() {\n      return request.auth != null;\n    }\n\n    // Check if user is the document owner\n    function isOwner(userId) {\n      return isAuthenticated() && request.auth.uid == userId;\n    }\n\n    // Check if user is league admin\n    function isLeagueAdmin(leagueId) {\n      let league = get(/databases/$(database)/documents/leagues/$(leagueId));\n      return isAuthenticated() && \n             (league.data.createdBy == request.auth.uid || \n              request.auth.uid in league.data.admins);\n    }\n\n    // Check if user is league member\n    function isLeagueMember(leagueId) {\n      return exists(/databases/$(database)/documents/leagues/$(leagueId)/members/$(request.auth.uid));\n    }\n\n    // Validate email format\n    function isValidEmail(email) {\n      return email.matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}$');\n    }\n\n    // Validate user data on write\n    function isValidUserData() {\n      let data = request.resource.data;\n      return data.keys().hasAll(['uid', 'email', 'displayName', 'createdAt']) &&\n             data.uid is string &&\n             data.email is string &&\n             isValidEmail(data.email) &&\n             data.displayName is string &&\n             data.displayName.size() >= 3 &&\n             data.displayName.size() <= 50 &&\n             data.createdAt is timestamp;\n    }\n\n    // Validate league data\n    function isValidLeagueData() {\n      let data = request.resource.data;\n      return data.keys().hasAll(['name', 'createdBy', 'season', 'status']) &&\n             data.name is string &&\n             data.name.size() >= 3 &&\n             data.name.size() <= 100 &&\n             data.createdBy == request.auth.uid &&\n             data.season is int &&\n             data.season >= 2024 &&\n             data.season <= 2030 &&\n             data.status in ['draft', 'active', 'finished', 'cancelled'];\n    }\n\n    // Validate fantasy squad data\n    function isValidSquadData() {\n      let data = request.resource.data;\n      return data.keys().hasAll(['userId', 'leagueId', 'name', 'formation']) &&\n             data.userId == request.auth.uid &&\n             data.name is string &&\n             data.name.size() >= 3 &&\n             data.name.size() <= 50 &&\n             data.formation is string &&\n             data.formation.matches('^[0-9]-[0-9]-[0-9]$');\n    }\n\n    // ============================================\n    // USERS COLLECTION\n    // ============================================\n\n    match /users/{userId} {\n      // Anyone can read basic user info (for display in leagues, etc.)\n      allow read: if true;\n\n      // Only the user can create their own document\n      allow create: if isOwner(userId) && isValidUserData();\n\n      // Only the user can update their own document\n      allow update: if isOwner(userId) &&\n                       // Prevent changing immutable fields\n                       request.resource.data.uid == resource.data.uid &&\n                       request.resource.data.createdAt == resource.data.createdAt &&\n                       // Email can only be changed if still valid\n                       isValidEmail(request.resource.data.email);\n\n      // Only the user can delete their own document\n      allow delete: if isOwner(userId);\n\n      // ----------------------------------------\n      // User Subcollections\n      // ----------------------------------------\n\n      // Fantasy Squads (user's personal squads)\n      match /fantasySquads/{squadId} {\n        // Owner can read their squads\n        // League members can read if same league\n        allow read: if isOwner(userId) || \n                       (isAuthenticated() && isLeagueMember(resource.data.leagueId));\n\n        // Only owner can write\n        allow create: if isOwner(userId) && isValidSquadData();\n        allow update: if isOwner(userId);\n        allow delete: if isOwner(userId);\n      }\n\n      // Notifications\n      match /notifications/{notificationId} {\n        allow read: if isOwner(userId);\n        allow write: if false; // System only (Cloud Functions)\n      }\n\n      // Achievements\n      match /achievements/{achievementId} {\n        allow read: if true; // Public\n        allow write: if false; // System only\n      }\n    }\n\n    // ============================================\n    // TEAMS COLLECTION (Reference Data)\n    // ============================================\n\n    match /teams/{teamId} {\n      // Anyone can read teams\n      allow read: if true;\n\n      // Only admins can write (via Cloud Functions)\n      allow write: if false;\n    }\n\n    // ============================================\n    // PLAYERS COLLECTION (Reference Data)\n    // ============================================\n\n    match /players/{playerId} {\n      // Anyone can read players\n      allow read: if true;\n\n      // Only admins can write (via Cloud Functions)\n      allow write: if false;\n    }\n\n    // ============================================\n    // LEAGUES COLLECTION\n    // ============================================\n\n    match /leagues/{leagueId} {\n      // Public leagues: anyone can read\n      // Private leagues: only members can read\n      allow read: if resource.data.isPublic == true || \n                     isAuthenticated() && isLeagueMember(leagueId);\n\n      // Only authenticated users can create leagues\n      allow create: if isAuthenticated() && isValidLeagueData();\n\n      // Only creator/admins can update\n      allow update: if isLeagueAdmin(leagueId) &&\n                       // Prevent changing creator\n                       request.resource.data.createdBy == resource.data.createdBy &&\n                       // Prevent changing season after creation\n                       request.resource.data.season == resource.data.season;\n\n      // Only creator can delete (and only if no members)\n      allow delete: if isOwner(resource.data.createdBy) &&\n                       resource.data.currentMembers == 0;\n\n      // ----------------------------------------\n      // League Subcollections\n      // ----------------------------------------\n\n      // Members\n      match /members/{memberId} {\n        // League members can read all members\n        allow read: if isLeagueMember(leagueId);\n\n        // User can join league (create their member doc)\n        allow create: if isOwner(memberId) &&\n                         request.resource.data.userId == request.auth.uid &&\n                         request.resource.data.leagueId == leagueId &&\n                         // Check league isn't full\n                         get(/databases/$(database)/documents/leagues/$(leagueId)).data.currentMembers < \n                         get(/databases/$(database)/documents/leagues/$(leagueId)).data.maxMembers;\n\n        // Member can update their own data\n        // Admin can update any member (for moderation)\n        allow update: if isOwner(memberId) || isLeagueAdmin(leagueId);\n\n        // Member can leave (delete their doc)\n        // Admin can remove members\n        allow delete: if isOwner(memberId) || isLeagueAdmin(leagueId);\n      }\n\n      // Feed (posts/activity)\n      match /feed/{postId} {\n        // League members can read feed\n        allow read: if isLeagueMember(leagueId);\n\n        // League members can create posts\n        allow create: if isLeagueMember(leagueId) &&\n                         request.resource.data.authorId == request.auth.uid &&\n                         request.resource.data.leagueId == leagueId &&\n                         // Content length validation\n                         request.resource.data.content.size() <= 2000;\n\n        // Author can update their own posts\n        allow update: if isOwner(resource.data.authorId) &&\n                         // Prevent changing author\n                         request.resource.data.authorId == resource.data.authorId;\n\n        // Author or admin can delete posts\n        allow delete: if isOwner(resource.data.authorId) || isLeagueAdmin(leagueId);\n      }\n\n      // Matchups (head-to-head)\n      match /matchups/{matchupId} {\n        // League members can read matchups\n        allow read: if isLeagueMember(leagueId);\n\n        // Only system can write (Cloud Functions)\n        allow write: if false;\n      }\n\n      // Standings\n      match /standings/{userId} {\n        // League members can read standings\n        allow read: if isLeagueMember(leagueId);\n\n        // Only system can write (Cloud Functions)\n        allow write: if false;\n      }\n    }\n\n    // ============================================\n    // FANTASY SQUADS COLLECTION (Root)\n    // ============================================\n\n    match /fantasySquads/{squadId} {\n      // Owner can read their squad\n      // League members can read squads in their league\n      allow read: if isOwner(resource.data.userId) ||\n                     (isAuthenticated() && isLeagueMember(resource.data.leagueId));\n\n      // Only owner can create\n      allow create: if isAuthenticated() && \n                       request.resource.data.userId == request.auth.uid &&\n                       isValidSquadData();\n\n      // Only owner can update\n      allow update: if isOwner(resource.data.userId) &&\n                       // Prevent changing ownership\n                       request.resource.data.userId == resource.data.userId &&\n                       request.resource.data.leagueId == resource.data.leagueId;\n\n      // Only owner can delete\n      allow delete: if isOwner(resource.data.userId);\n    }\n\n    // ============================================\n    // MATCHES COLLECTION (Reference Data)\n    // ============================================\n\n    match /matches/{matchId} {\n      // Anyone can read matches\n      allow read: if true;\n\n      // Only admins can write (via Cloud Functions)\n      allow write: if false;\n    }\n\n    // ============================================\n    // TRANSFERS COLLECTION (Reference Data)\n    // ============================================\n\n    match /transfers/{transferId} {\n      // Anyone can read transfers\n      allow read: if true;\n\n      // Only admins can write (via Cloud Functions)\n      allow write: if false;\n    }\n\n    // ============================================\n    // SEASON HISTORY (Archive)\n    // ============================================\n\n    match /seasonHistory/{historyId} {\n      // Anyone can read historical data\n      allow read: if true;\n\n      // Only system can write\n      allow write: if false;\n    }\n\n    // ============================================\n    // ADMIN COLLECTIONS (System Only)\n    // ============================================\n\n    match /admin/{document=**} {\n      // No public access\n      allow read, write: if false;\n    }\n\n    match /system/{document=**} {\n      // No public access\n      allow read, write: if false;\n    }\n\n    // ============================================\n    // FALLBACK: DENY ALL OTHER PATHS\n    // ============================================\n\n    match /{document=**} {\n      allow read, write: if false;\n    }\n  }\n}",
+    "indexes": []
+  },
+  "metadata": {
+    "version": "1.0",
+    "created": "2025-12-02",
+    "description": "Firestore Security Rules for MyDreamTeam Fantasy Football App",
+    "notes": [
+      "These rules enforce strict security for all collections",
+      "Admin operations must go through Cloud Functions",
+      "Users can only access their own data or data they're authorized to see",
+      "All write operations validate data structure and content",
+      "Reference data (teams, players, matches) is read-only for clients"
+    ]
+  },
+  "security_levels": {
+    "public_read": [
+      "users (basic info)",
+      "teams",
+      "players",
+      "matches",
+      "transfers",
+      "seasonHistory",
+      "leagues (if isPublic == true)"
+    ],
+    "authenticated_read": [
+      "users (full profile)",
+      "leagues (if member)",
+      "league members",
+      "league feed",
+      "fantasy squads (if owner or league member)"
+    ],
+    "owner_write": [
+      "users (own profile)",
+      "fantasy squads (own squads)",
+      "league feed (own posts)",
+      "league members (own membership)"
+    ],
+    "admin_write": [
+      "league settings (league admin)",
+      "league members (league admin - moderation)",
+      "league feed (league admin - moderation)"
+    ],
+    "system_only": [
+      "teams",
+      "players",
+      "matches",
+      "transfers",
+      "matchups",
+      "standings",
+      "notifications",
+      "achievements"
+    ]
+  },
+  "validation_rules": {
+    "users": {
+      "required_fields": ["uid", "email", "displayName", "createdAt"],
+      "immutable_fields": ["uid", "createdAt"],
+      "validations": [
+        "email must match email regex",
+        "displayName: 3-50 characters",
+        "uid must match auth.uid"
+      ]
+    },
+    "leagues": {
+      "required_fields": ["name", "createdBy", "season", "status"],
+      "immutable_fields": ["createdBy", "season"],
+      "validations": [
+        "name: 3-100 characters",
+        "season: 2024-2030",
+        "status: draft|active|finished|cancelled",
+        "createdBy must match auth.uid on create"
+      ]
+    },
+    "fantasySquads": {
+      "required_fields": ["userId", "leagueId", "name", "formation"],
+      "immutable_fields": ["userId", "leagueId"],
+      "validations": [
+        "name: 3-50 characters",
+        "formation: N-N-N pattern (e.g., 4-3-3)",
+        "userId must match auth.uid on create"
+      ]
+    },
+    "feed_posts": {
+      "required_fields": ["authorId", "leagueId", "content", "createdAt"],
+      "immutable_fields": ["authorId", "leagueId"],
+      "validations": [
+        "content: max 2000 characters",
+        "authorId must match auth.uid on create"
+      ]
+    }
+  },
+  "testing": {
+    "emulator_command": "firebase emulators:start --only firestore",
+    "test_scenarios": [
+      "Unauthenticated user can read public leagues",
+      "Authenticated user can create league",
+      "User can only update their own profile",
+      "User cannot change league creator",
+      "User cannot write to teams/players collections",
+      "League member can read league feed",
+      "Non-member cannot read private league",
+      "User cannot join full league",
+      "Only league admin can remove members"
+    ]
+  },
+  "deployment": {
+    "command": "firebase deploy --only firestore:rules",
+    "verification_steps": [
+      "Test with emulator first",
+      "Verify all read/write operations work as expected",
+      "Check error messages are informative",
+      "Monitor firestore.googleapis.com/document/permission_denied metric",
+      "Review audit logs for unexpected denials"
+    ]
+  }
+}

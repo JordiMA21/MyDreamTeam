@@ -1,0 +1,600 @@
+================================================================================
+FIRESTORE INDEXES - MyDreamTeam Fantasy Football App
+================================================================================
+
+Version: 1.0
+Created: 2025-12-02
+Status: Production Ready
+
+This file contains all required Firestore composite indexes for optimal query
+performance. Single-field indexes are created automatically by Firestore.
+
+================================================================================
+TABLE OF CONTENTS
+================================================================================
+
+1. Priority Indexes (Create First - Week 1)
+2. Secondary Indexes (Create Next - Week 2)
+3. Optional Indexes (Create As Needed)
+4. Index Creation Commands
+5. Query Performance Notes
+6. Monitoring and Optimization
+
+================================================================================
+1. PRIORITY INDEXES (CREATE FIRST - WEEK 1)
+================================================================================
+
+These indexes are critical for core app functionality and should be created
+immediately during initial setup.
+
+--------------------------------------------------------------------------------
+INDEX 1: Players by Team and Season
+--------------------------------------------------------------------------------
+Collection: players
+Fields:
+  - currentTeamId (Ascending)
+  - season (Ascending)
+
+Usage: Get all players for a specific team in current season
+Query Example:
+  db.collection("players")
+    .where("currentTeamId", "==", teamId)
+    .where("season", "==", 2025)
+
+Estimated Queries/Day: 50,000
+Priority: CRITICAL
+
+--------------------------------------------------------------------------------
+INDEX 2: Leagues by Creator
+--------------------------------------------------------------------------------
+Collection: leagues
+Fields:
+  - createdBy (Ascending)
+  - season (Ascending)
+  - createdAt (Descending)
+
+Usage: Get all leagues created by a user
+Query Example:
+  db.collection("leagues")
+    .where("createdBy", "==", userId)
+    .where("season", "==", 2025)
+    .orderBy("createdAt", "desc")
+
+Estimated Queries/Day: 20,000
+Priority: CRITICAL
+
+--------------------------------------------------------------------------------
+INDEX 3: League Standings
+--------------------------------------------------------------------------------
+Collection Group: members
+Fields:
+  - leagueId (Ascending)
+  - totalPoints (Descending)
+
+Usage: Get league standings ordered by points
+Query Example:
+  db.collection("leagues/{leagueId}/members")
+    .orderBy("totalPoints", "desc")
+    .limit(20)
+
+Estimated Queries/Day: 100,000
+Priority: CRITICAL
+
+--------------------------------------------------------------------------------
+INDEX 4: Active Fantasy Squads
+--------------------------------------------------------------------------------
+Collection: fantasySquads
+Fields:
+  - userId (Ascending)
+  - leagueId (Ascending)
+  - isActive (Ascending)
+
+Usage: Get user's active squad for a specific league
+Query Example:
+  db.collection("fantasySquads")
+    .where("userId", "==", userId)
+    .where("leagueId", "==", leagueId)
+    .where("isActive", "==", true)
+    .limit(1)
+
+Estimated Queries/Day: 150,000
+Priority: CRITICAL
+
+--------------------------------------------------------------------------------
+INDEX 5: Matches by Date and Status
+--------------------------------------------------------------------------------
+Collection: matches
+Fields:
+  - date (Ascending)
+  - status (Ascending)
+
+Usage: Get today's matches or upcoming matches
+Query Example:
+  db.collection("matches")
+    .where("date", ">=", todayStart)
+    .where("date", "<", todayEnd)
+    .where("status", "==", "scheduled")
+
+Estimated Queries/Day: 80,000
+Priority: CRITICAL
+
+================================================================================
+2. SECONDARY INDEXES (CREATE NEXT - WEEK 2)
+================================================================================
+
+These indexes improve performance for common queries but are not critical
+for basic functionality.
+
+--------------------------------------------------------------------------------
+INDEX 6: Players by Position and Points
+--------------------------------------------------------------------------------
+Collection: players
+Fields:
+  - position (Ascending)
+  - status (Ascending)
+  - fantasyStats.totalPoints (Descending)
+
+Usage: Get top players by position (e.g., top forwards)
+Query Example:
+  db.collection("players")
+    .where("position", "==", "FWD")
+    .where("status", "==", "active")
+    .orderBy("fantasyStats.totalPoints", "desc")
+    .limit(50)
+
+Estimated Queries/Day: 30,000
+Priority: HIGH
+
+--------------------------------------------------------------------------------
+INDEX 7: League Feed
+--------------------------------------------------------------------------------
+Collection Group: feed
+Fields:
+  - leagueId (Ascending)
+  - createdAt (Descending)
+
+Usage: Get recent posts in league feed
+Query Example:
+  db.collection("leagues/{leagueId}/feed")
+    .orderBy("createdAt", "desc")
+    .limit(20)
+
+Estimated Queries/Day: 60,000
+Priority: HIGH
+
+--------------------------------------------------------------------------------
+INDEX 8: League Matchups
+--------------------------------------------------------------------------------
+Collection Group: matchups
+Fields:
+  - leagueId (Ascending)
+  - week (Ascending)
+  - status (Ascending)
+
+Usage: Get all matchups for a specific week
+Query Example:
+  db.collection("leagues/{leagueId}/matchups")
+    .where("week", "==", currentWeek)
+    .where("status", "==", "ongoing")
+
+Estimated Queries/Day: 40,000
+Priority: HIGH
+
+--------------------------------------------------------------------------------
+INDEX 9: Public Leagues
+--------------------------------------------------------------------------------
+Collection: leagues
+Fields:
+  - isPublic (Ascending)
+  - season (Ascending)
+  - status (Ascending)
+  - createdAt (Descending)
+
+Usage: Browse public leagues
+Query Example:
+  db.collection("leagues")
+    .where("isPublic", "==", true)
+    .where("season", "==", 2025)
+    .where("status", "==", "active")
+    .orderBy("createdAt", "desc")
+    .limit(20)
+
+Estimated Queries/Day: 15,000
+Priority: HIGH
+
+--------------------------------------------------------------------------------
+INDEX 10: Matches by Team
+--------------------------------------------------------------------------------
+Collection: matches
+Fields:
+  - homeTeamId (Ascending)
+  - season (Ascending)
+  - date (Descending)
+
+Usage: Get team's recent matches (home)
+Query Example:
+  db.collection("matches")
+    .where("homeTeamId", "==", teamId)
+    .where("season", "==", 2025)
+    .orderBy("date", "desc")
+    .limit(10)
+
+Estimated Queries/Day: 25,000
+Priority: HIGH
+
+Note: Duplicate this index for "awayTeamId" for away matches
+
+================================================================================
+3. OPTIONAL INDEXES (CREATE AS NEEDED)
+================================================================================
+
+Create these indexes only if specific features are implemented or if you
+observe slow queries in production.
+
+--------------------------------------------------------------------------------
+INDEX 11: Teams by League and Position
+--------------------------------------------------------------------------------
+Collection: teams
+Fields:
+  - league (Ascending)
+  - season (Ascending)
+  - stats.position (Ascending)
+
+Usage: Get league table (standings)
+Estimated Queries/Day: 10,000
+Priority: MEDIUM
+
+--------------------------------------------------------------------------------
+INDEX 12: Users by Status
+--------------------------------------------------------------------------------
+Collection: users
+Fields:
+  - status (Ascending)
+  - createdAt (Descending)
+
+Usage: Admin queries for user management
+Estimated Queries/Day: 1,000
+Priority: MEDIUM
+
+--------------------------------------------------------------------------------
+INDEX 13: Fantasy Squads by Points (Weekly)
+--------------------------------------------------------------------------------
+Collection: fantasySquads
+Fields:
+  - leagueId (Ascending)
+  - week (Ascending)
+  - points.week (Descending)
+
+Usage: Get top performers for the week
+Estimated Queries/Day: 5,000
+Priority: MEDIUM
+
+--------------------------------------------------------------------------------
+INDEX 14: Transfers by Player
+--------------------------------------------------------------------------------
+Collection: transfers
+Fields:
+  - playerId (Ascending)
+  - date (Descending)
+
+Usage: Get player's transfer history
+Estimated Queries/Day: 8,000
+Priority: MEDIUM
+
+--------------------------------------------------------------------------------
+INDEX 15: Transfers by Season
+--------------------------------------------------------------------------------
+Collection: transfers
+Fields:
+  - season (Ascending)
+  - status (Ascending)
+  - date (Descending)
+
+Usage: Get recent transfers for current season
+Estimated Queries/Day: 12,000
+Priority: MEDIUM
+
+--------------------------------------------------------------------------------
+INDEX 16: League Members by Rank
+--------------------------------------------------------------------------------
+Collection Group: members
+Fields:
+  - leagueId (Ascending)
+  - rank (Ascending)
+
+Usage: Get members ordered by rank
+Estimated Queries/Day: 20,000
+Priority: MEDIUM
+
+--------------------------------------------------------------------------------
+INDEX 17: Matches by League and Round
+--------------------------------------------------------------------------------
+Collection: matches
+Fields:
+  - season (Ascending)
+  - league (Ascending)
+  - round (Ascending)
+
+Usage: Get all matches for a specific gameweek
+Estimated Queries/Day: 15,000
+Priority: MEDIUM
+
+--------------------------------------------------------------------------------
+INDEX 18: Feed by Type
+--------------------------------------------------------------------------------
+Collection Group: feed
+Fields:
+  - leagueId (Ascending)
+  - type (Ascending)
+  - createdAt (Descending)
+
+Usage: Filter feed by post type (e.g., only transfers)
+Estimated Queries/Day: 5,000
+Priority: LOW
+
+--------------------------------------------------------------------------------
+INDEX 19: Feed by Author
+--------------------------------------------------------------------------------
+Collection Group: feed
+Fields:
+  - authorId (Ascending)
+  - createdAt (Descending)
+
+Usage: Get all posts by a specific user
+Estimated Queries/Day: 3,000
+Priority: LOW
+
+--------------------------------------------------------------------------------
+INDEX 20: Players by Market Value
+--------------------------------------------------------------------------------
+Collection: players
+Fields:
+  - season (Ascending)
+  - status (Ascending)
+  - marketValue.amount (Descending)
+
+Usage: Get most expensive players
+Estimated Queries/Day: 5,000
+Priority: LOW
+
+================================================================================
+4. INDEX CREATION COMMANDS
+================================================================================
+
+Option 1: Firebase Console (Recommended for First-Time Setup)
+--------------------------------------------------------------
+1. Go to Firebase Console > Firestore Database > Indexes
+2. Click "Create Index"
+3. Select collection and fields from above specifications
+4. Click "Create"
+
+Option 2: Firebase CLI (Recommended for Deployment)
+----------------------------------------------------
+1. Create firestore.indexes.json file with index definitions
+2. Run: firebase deploy --only firestore:indexes
+
+Option 3: Auto-Generated from Query Errors
+-------------------------------------------
+When you run a query that requires an index, Firestore will:
+1. Throw an error with a link to create the index
+2. Click the link to automatically create the required index
+3. Wait 1-2 minutes for index to build
+4. Retry the query
+
+Sample firestore.indexes.json format:
+--------------------------------------
+{
+  "indexes": [
+    {
+      "collectionGroup": "players",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "currentTeamId", "order": "ASCENDING" },
+        { "fieldPath": "season", "order": "ASCENDING" }
+      ]
+    }
+  ]
+}
+
+================================================================================
+5. QUERY PERFORMANCE NOTES
+================================================================================
+
+Index Size Estimates
+--------------------
+- Each index adds ~100 bytes per document
+- 30K players × 20 indexes = ~60MB of index data
+- Indexes are automatically maintained (writes are slower, reads are faster)
+
+Query Performance Targets
+--------------------------
+- Simple queries (with index): < 100ms
+- Complex queries (with index): < 300ms
+- Queries without index: FAIL (Firestore requires indexes)
+
+Best Practices
+--------------
+1. ALWAYS paginate large result sets (use .limit())
+2. Use inequality filters (<, >, <=, >=) sparingly (expensive)
+3. Avoid IN queries with large arrays (max 10 items recommended)
+4. Use array-contains for simple membership checks
+5. Cache frequently accessed data on client
+6. Use Firestore offline persistence for faster reads
+
+Cost Optimization
+-----------------
+- Each indexed field adds to write cost
+- Balance between read performance and write cost
+- For heavy write collections, minimize indexes
+- For heavy read collections, optimize with indexes
+
+Example Query Costs:
+--------------------
+Query: Get league standings (20 members)
+- Without index: FAIL
+- With index: 20 reads + 0 index reads = 20 reads
+- Cached: 0 reads (free)
+
+Query: Search players by position (50 results)
+- Without index: FAIL
+- With index: 50 reads
+- Paginated (20): 20 reads (60% cheaper)
+
+================================================================================
+6. MONITORING AND OPTIMIZATION
+================================================================================
+
+Key Metrics to Monitor
+----------------------
+1. Query Latency (p50, p95, p99)
+   - Target: p95 < 300ms
+   - Alert if p95 > 500ms
+
+2. Index Usage
+   - Identify unused indexes (remove to save write cost)
+   - Identify missing indexes (add to improve performance)
+
+3. Read/Write Ratios
+   - High read ratio: Add more indexes
+   - High write ratio: Reduce indexes, denormalize data
+
+4. Error Rates
+   - Index not found errors
+   - Permission denied errors
+   - Quota exceeded errors
+
+Tools for Monitoring
+--------------------
+1. Firebase Console > Firestore > Usage tab
+   - Shows read/write/delete counts
+   - Storage usage
+   - Bandwidth usage
+
+2. Firebase Console > Firestore > Indexes tab
+   - Shows all indexes and their status
+   - Index build progress
+   - Index sizes
+
+3. Cloud Monitoring (Stackdriver)
+   - Custom dashboards for Firestore metrics
+   - Alerting policies
+   - Log analysis
+
+4. Firebase Performance Monitoring
+   - Track query performance in production
+   - Identify slow queries
+   - Monitor by device/OS/network
+
+Index Optimization Process
+---------------------------
+1. Deploy app with priority indexes
+2. Monitor for 1 week
+3. Identify slow queries (> 500ms)
+4. Create indexes for slow queries
+5. Remove unused indexes
+6. Repeat monthly
+
+Query Optimization Checklist
+-----------------------------
+✅ Use indexed fields for WHERE clauses
+✅ Use indexed fields for ORDER BY
+✅ Limit result sets (20-50 items)
+✅ Paginate large collections
+✅ Cache frequently accessed data
+✅ Use offline persistence
+✅ Batch reads where possible
+✅ Avoid deep queries (nested subcollections)
+✅ Denormalize for read-heavy data
+✅ Use Cloud Functions for complex operations
+
+Common Performance Issues
+--------------------------
+Issue: "Index not found" error
+Solution: Create the required composite index
+
+Issue: Query timeout (> 10s)
+Solution: Add index, reduce result set, paginate
+
+Issue: High read costs
+Solution: Enable caching, reduce query frequency
+
+Issue: Slow writes
+Solution: Reduce number of indexes, batch writes
+
+Issue: Inconsistent results
+Solution: Use transactions for consistency
+
+================================================================================
+APPENDIX A: FULL INDEX JSON (Copy to firestore.indexes.json)
+================================================================================
+
+See firestore.indexes.json in project root for complete index configuration
+suitable for deployment via Firebase CLI.
+
+To deploy:
+$ firebase deploy --only firestore:indexes
+
+================================================================================
+APPENDIX B: INDEX MONITORING QUERIES
+================================================================================
+
+Check index usage (Cloud Console):
+```
+SELECT
+  operation_name,
+  COUNT(*) as count,
+  AVG(latency) as avg_latency
+FROM
+  firestore_googleapis_com_api
+WHERE
+  operation_name LIKE '%Query%'
+GROUP BY
+  operation_name
+ORDER BY
+  count DESC
+```
+
+Find slow queries:
+```
+SELECT
+  operation_name,
+  MAX(latency) as max_latency,
+  AVG(latency) as avg_latency
+FROM
+  firestore_googleapis_com_api
+WHERE
+  operation_name LIKE '%Query%'
+  AND latency > 500
+GROUP BY
+  operation_name
+ORDER BY
+  max_latency DESC
+```
+
+================================================================================
+DOCUMENT VERSION HISTORY
+================================================================================
+
+Version 1.0 (2025-12-02)
+- Initial index design
+- 20 indexes defined
+- Priority classification
+- Performance guidelines
+
+Future Versions:
+- Add indexes based on production metrics
+- Remove unused indexes
+- Optimize based on query patterns
+
+================================================================================
+RELATED DOCUMENTS
+================================================================================
+
+- FIREBASE_SCHEMA.md - Complete database schema
+- FIRESTORE_RULES.json - Security rules
+- PROJECT_EXECUTION_PLAN.md - Implementation plan
+- CLAUDE.md - Architecture guidelines
+
+================================================================================
+END OF DOCUMENT
+================================================================================

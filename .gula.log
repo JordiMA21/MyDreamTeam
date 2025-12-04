@@ -1,0 +1,37 @@
+{
+  "project_info": {
+    "created": "2025-10-27T16:24:10Z",
+    "gula_version": "0.0.101"
+  },
+  "operations": [
+    {
+      "timestamp": "2025-10-27T16:24:10Z",
+      "operation": "install",
+      "platform": "ios",
+      "module": "EstablishmentSelection",
+      "branch": "main",
+      "status": "started",
+      "details": "",
+      "gula_version": "0.0.101"
+    },
+    {
+      "timestamp": "2025-10-27T16:24:14Z",
+      "operation": "install",
+      "platform": "ios",
+      "module": "EstablishmentSelection",
+      "branch": "main",
+      "status": "success",
+      "details": "",
+      "gula_version": "1.27.0"
+    }
+  ],
+  "installed_modules": {
+    "ios:EstablishmentSelection": {
+      "platform": "ios",
+      "module": "EstablishmentSelection",
+      "branch": "main",
+      "installed_at": "2025-10-27T16:24:14Z",
+      "gula_version": "1.27.0"
+    }
+  }
+}

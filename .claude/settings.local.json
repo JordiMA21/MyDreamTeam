@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(chmod:*)",
+      "Bash(ls:*)",
+      "Bash(wc:*)",
+      "Bash(__NEW_LINE__ echo '✅ VERIFICACIÓN FINAL DE TODOS LOS ARCHIVOS CREADOS' echo ════════════════════════════════════════════════════════ echo echo '📍 EN: ~/Desktop/' echo ls -1 /Users/jordimiguelaguado/Desktop/*.{sh,txt,md})",
+      "Bash(xargs -I {} bash -c 'basename {} && wc -l < {} | xargs echo \"\"\"\"   Líneas:\"\"\"\"')",
+      "Bash(sort echo \"\" echo \"════════════════════════════════════════════════════════\" echo \"\" echo \"📖 EN: ~/Desktop/Jordi/MyDreamTeam/\" ls -1 /Users/jordimiguelaguado/Desktop/Jordi/MyDreamTeam/ARQUITECTURA.md)",
+      "Bash(xargs -I {} bash -c 'echo \"\"\"\"✓ $(basename {})\"\"\"\" && wc -l < \"\"\"\"{}\"\"\"\" | xargs echo \"\"\"\"  Lines:\"\"\"\"')",
+      "Bash(xcodebuild:*)",
+      "Bash(timeout 120 xcodebuild:*)",
+      "Bash(find:*)",
+      "Bash(xargs:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
