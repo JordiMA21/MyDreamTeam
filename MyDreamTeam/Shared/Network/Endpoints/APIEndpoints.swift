@@ -177,27 +177,8 @@ struct UserDTO: Codable, Identifiable {
     }
 }
 
-struct EstablishmentDTO: Codable, Identifiable {
-    let id: Int
-    let name: String
-    let description: String?
-    let latitude: Double
-    let longitude: Double
-    let city: String
-    let address: String?
-    let imageUrl: String?
-
-    enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case description
-        case latitude
-        case longitude
-        case city
-        case address
-        case imageUrl = "image_url"
-    }
-}
+// NOTE: EstablishmentDTO is defined in /Data/Datasources/Establishment/DTOs/EstablishmentDTO.swift
+// Removed duplicate definition to avoid ambiguity
 
 struct ProductDTO: Codable, Identifiable {
     let id: Int

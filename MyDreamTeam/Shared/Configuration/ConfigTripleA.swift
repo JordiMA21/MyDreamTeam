@@ -12,22 +12,22 @@ class ConfigTripleA: TripleAForSwiftUIProtocol {
     private enum OAuthAPI {
         case login
         case refresh
-        var endpoint: Endpoint {
+        var endpoint: TripleA.Endpoint {
             switch self {
             case .login:
                 let parameters: [String: String] = [:]
                 let headers: [String: String] = ["Accept-Language": Locale.current.identifier]
-                return Endpoint(path: "\(Config.baseURL)api/users/login",
-                                httpMethod: .post,
-                                parameters: parameters,
-                                headers: headers)
+                return TripleA.Endpoint(path: "\(Config.baseURL)api/users/login",
+                                        httpMethod: .post,
+                                        parameters: parameters,
+                                        headers: headers)
             case .refresh:
                 let parameters = ["grant_type": "refresh_token",
                                   "client_id": Config.clientID,
                                   "client_secret": Config.clientSecret]
-                return Endpoint(path: "\(Config.baseURL)api/users/refresh",
-                                httpMethod: .post,
-                                parameters: parameters)
+                return TripleA.Endpoint(path: "\(Config.baseURL)api/users/refresh",
+                                        httpMethod: .post,
+                                        parameters: parameters)
             }
         }
     }
@@ -43,9 +43,7 @@ class ConfigTripleA: TripleAForSwiftUIProtocol {
 
     lazy var authenticator: AuthenticatorSUI = .init(authenticator: appAuthenticator)
 
-    lazy var network = Network(baseURL: Config.baseURL,
-                               authenticator: Config.shared.authenticator,
-                               format: .full)
+    lazy var network = TripleA.Network(baseURL: Config.baseURL)
 
-    var authenticatedTestingEndpoint: TripleA.Endpoint? = Endpoint(path: "", httpMethod: .get)
+    var authenticatedTestingEndpoint: TripleA.Endpoint? = TripleA.Endpoint(path: "", httpMethod: .get)
 }

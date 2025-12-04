@@ -10,12 +10,10 @@ import TripleA
 
 class ErrorHandlerManager: ErrorHandlerProtocol {
     func handle(_ error: Error) -> Error {
-        if let error = error as? NetworkError {
+        if let error = error as? TripleA.NetworkError {
             switch error {
-            case .failure(let statusCode , let data, _):
+            case .failure(let statusCode, let data, let error):
                 return parse(data: data, statusCode: statusCode)
-            case .errorData(let data):
-                return parse(data: data)
             default:
                 return AppError.generalError
             }
@@ -23,8 +21,6 @@ class ErrorHandlerManager: ErrorHandlerProtocol {
             switch authError {
             case .notAuthorized:
                 return AppError.badCredentials("common_wrongCredentialsMessage")
-            case .errorData(let data):
-                return parse(data: data)
             case .noInternet:
                 return AppError.noInternet
             default:

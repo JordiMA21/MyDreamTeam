@@ -84,7 +84,7 @@ struct LineupSlotCodable: Codable {
     let slotIndex: Int
 
     func toDomain() -> LineupSlot {
-        var slot = LineupSlot(
+        let slot = LineupSlot(
             id: id,
             position: FormationPosition(rawValue: position) ?? .goalkeeper,
             player: nil,

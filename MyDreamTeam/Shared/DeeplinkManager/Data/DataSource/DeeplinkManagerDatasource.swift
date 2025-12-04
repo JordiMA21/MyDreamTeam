@@ -9,15 +9,15 @@
 import TripleA
 
 final class DeeplinkManagerDatasource: DeeplinkManagerDatasourceProtocol {
-    private let network: Network
+    private let network: TripleA.Network
 
-    init(network: Network) {
+    init(network: TripleA.Network) {
         self.network = network
     }
 
     func resendLinkVerification(email: String) async throws {
         let parameters = ["email": email]
-        let endpoint = Endpoint(path: "api/users/resend-link", httpMethod: .post, parameters: parameters)
+        let endpoint = TripleA.Endpoint(path: "api/users/resend-link", httpMethod: .post, parameters: parameters)
         _ = try await network.load(this: endpoint)
     }
 }
