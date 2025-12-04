@@ -7,7 +7,8 @@ struct MyDreamTeamApp: App {
 
     var body: some Scene {
         WindowGroup {
-            HomeBuilder.build()
+            NavigatorRootView(root: HomeBuilder.build())
+                .environment(Navigator.shared)
         }
     }
 }
