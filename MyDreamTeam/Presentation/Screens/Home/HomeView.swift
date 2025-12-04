@@ -28,15 +28,11 @@ struct HomeView: View {
             // Custom Tab Bar
             customTabBar
         }
-        .ignoresSafeArea(edges: .top)
     }
 
     // MARK: - Navigation Bar
 
     private var navBar: some View {
-        ZStack {
-            Color.blue
-
             HStack {
                 Image(systemName: "sportscourt.fill")
                     .font(.system(size: 24))
@@ -67,10 +63,9 @@ struct HomeView: View {
                 .background(Color.white.opacity(0.15))
                 .cornerRadius(8)
             }
+            .background(.blue)
             .padding(.horizontal, 20)
-        }
         .frame(height: 60)
-        .ignoresSafeArea(edges: .top)
     }
 
     // MARK: - Tab Content
@@ -82,8 +77,10 @@ struct HomeView: View {
             case 0:
                 homeTabContent
             case 1:
-                PlayersBuilder.build()
+                MyTeamBuilder.build()
             case 2:
+                PlayersBuilder.build()
+            case 3:
                 leaguesTabContent
             default:
                 homeTabContent
@@ -319,7 +316,7 @@ struct HomeView: View {
 
     private var customTabBar: some View {
         HStack(spacing: 0) {
-            ForEach(0..<3) { index in
+            ForEach(0..<4) { index in
                 tabBarItem(for: index)
                     .frame(maxWidth: .infinity)
             }
@@ -354,8 +351,9 @@ struct HomeView: View {
     private func iconName(for index: Int) -> String {
         switch index {
         case 0: return "house.fill"
-        case 1: return "person.3.fill"
-        case 2: return "trophy.fill"
+        case 1: return "rectangle.grid.1x2.fill"
+        case 2: return "person.3.fill"
+        case 3: return "trophy.fill"
         default: return "questionmark"
         }
     }
@@ -363,8 +361,9 @@ struct HomeView: View {
     private func title(for index: Int) -> String {
         switch index {
         case 0: return "Home"
-        case 1: return "Players"
-        case 2: return "Leagues"
+        case 1: return "Mi Equipo"
+        case 2: return "Jugadores"
+        case 3: return "Ligas"
         default: return ""
         }
     }
