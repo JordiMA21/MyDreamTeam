@@ -21,8 +21,8 @@ struct HomeView: View {
             // Navigation Bar
             navBar
 
-            // Content Area
-            contentArea
+            // Content Area based on selected tab
+            tabContent
                 .frame(maxHeight: .infinity)
 
             // Custom Tab Bar
@@ -47,6 +47,21 @@ struct HomeView: View {
                     .foregroundColor(.white)
 
                 Spacer()
+
+                // Login/Logout Toggle
+                HStack(spacing: 8) {
+                    Text(viewModel.isLoggedIn ? "Logout" : "Login")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.white)
+
+                    Toggle("", isOn: $viewModel.isLoggedIn)
+                        .toggleStyle(SwitchToggleStyle(tint: .green))
+                        .frame(width: 50)
+                        .onChange(of: viewModel.isLoggedIn) { _, _ in
+                            viewModel.toggleLoginStatus()
+                        }
+                }
+                .padding(.trailing, 10)
             }
             .padding(.horizontal, 20)
         }
@@ -54,14 +69,113 @@ struct HomeView: View {
         .ignoresSafeArea(edges: .top)
     }
 
-    // MARK: - Content Area
+    // MARK: - Tab Content
 
     @ViewBuilder
-    private var contentArea: some View {
+    private var tabContent: some View {
         if viewModel.isLoggedIn {
-            loggedInContent
+            switch viewModel.selectedTab {
+            case 0:
+                homeTabContent
+            case 1:
+                PlayersBuilder.build()
+            case 2:
+                leaguesTabContent
+            default:
+                homeTabContent
+            }
         } else {
             loggedOutContent
+        }
+    }
+
+    private var homeTabContent: some View {
+        VStack(spacing: 0) {
+            // Header
+            VStack(alignment: .leading, spacing: 8) {
+                Text("My Leagues")
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(.primary)
+
+                Text("\(viewModel.userLeagues.count) active leagues")
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+
+            // Leagues List
+            if viewModel.userLeagues.isEmpty {
+                VStack(spacing: 20) {
+                    Spacer()
+
+                    Image(systemName: "list.bullet")
+                        .font(.system(size: 60))
+                        .foregroundColor(.blue)
+
+                    Text("No Leagues")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.primary)
+
+                    Text("Join or create a league to get started")
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
+                    VStack(spacing: 12) {
+                        ForEach(viewModel.userLeagues) { league in
+                            leagueCard(league)
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(.systemBackground))
+    }
+
+    private var leaguesTabContent: some View {
+        VStack(spacing: 0) {
+            // Header
+            VStack(alignment: .leading, spacing: 8) {
+                Text("All Leagues")
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(.primary)
+
+                Text("Browse and join leagues")
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+
+            VStack(spacing: 20) {
+                Spacer()
+
+                Image(systemName: "trophy.fill")
+                    .font(.system(size: 60))
+                    .foregroundColor(.orange)
+
+                Text("Coming Soon")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundColor(.primary)
+
+                Text("League discovery feature coming soon")
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(.systemBackground))
         }
     }
 
@@ -119,26 +233,82 @@ struct HomeView: View {
         .background(Color(.systemBackground))
     }
 
-    private var loggedInContent: some View {
-        VStack(spacing: 20) {
-            Spacer()
 
-            Image(systemName: "trophy.fill")
-                .font(.system(size: 60))
-                .foregroundColor(.orange)
+    private func leagueCard(_ league: League) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(league.name)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(.primary)
 
-            Text("Leagues List")
-                .font(.system(size: 24, weight: .bold))
-                .foregroundColor(.primary)
+                    HStack(spacing: 20) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "person.2.fill")
+                                .font(.system(size: 12))
+                                .foregroundColor(.blue)
+                            Text("\(league.members) members")
+                                .font(.system(size: 12))
+                                .foregroundColor(.secondary)
+                        }
 
-            Text("Coming Soon")
-                .font(.system(size: 16))
-                .foregroundColor(.secondary)
+                        HStack(spacing: 4) {
+                            Image(systemName: "star.fill")
+                                .font(.system(size: 12))
+                                .foregroundColor(.orange)
+                            Text("Rank #\(league.rank)")
+                                .font(.system(size: 12))
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
 
-            Spacer()
+                Spacer()
+
+                VStack(alignment: .trailing, spacing: 6) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "bolt.fill")
+                            .font(.system(size: 14))
+                            .foregroundColor(.orange)
+                        Text("\(league.points)")
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundColor(.primary)
+                    }
+
+                    Text("points")
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            Divider()
+                .padding(.vertical, 4)
+
+            HStack {
+                Button(action: {}) {
+                    Text("View")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.blue)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 36)
+                        .background(Color.blue.opacity(0.1))
+                        .cornerRadius(8)
+                }
+
+                Button(action: {}) {
+                    Text("Stats")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.blue)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 36)
+                        .background(Color.blue.opacity(0.1))
+                        .cornerRadius(8)
+                }
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemBackground))
+        .padding(16)
+        .background(Color(.systemGray6))
+        .cornerRadius(12)
     }
 
     // MARK: - Custom Tab Bar
