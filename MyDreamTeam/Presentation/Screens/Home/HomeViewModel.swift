@@ -46,6 +46,10 @@ final class HomeViewModel: ObservableObject {
         isLoggedIn.toggle()
     }
 
+    func didSelectLeagueForAuction(_ league: League) {
+        router.navigateToAuctionMarket(leagueId: league.id)
+    }
+
     // MARK: - Private Methods
 
     private func setupMockData() {

@@ -21,4 +21,10 @@ final class HomeRouter: Router {
         // TODO: Implement sign up navigation when auth feature is ready
         showToastWithCloseAction(with: "Sign Up feature coming soon")
     }
+
+    func navigateToAuctionMarket(leagueId: String) {
+        Task { @MainActor in
+            navigator.push(to: Page(from: AuctionMarketBuilder.build(leagueId: leagueId)))
+        }
+    }
 }

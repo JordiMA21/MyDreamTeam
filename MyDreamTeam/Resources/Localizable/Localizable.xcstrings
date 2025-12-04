@@ -4,6 +4,72 @@
     "" : {
 
     },
+    "(%lld)" : {
+
+    },
+    "#%lld" : {
+
+    },
+    "%@ added to team!" : {
+
+    },
+    "%lld" : {
+
+    },
+    "%lld active leagues" : {
+
+    },
+    "%lld años" : {
+
+    },
+    "%lld jugador%@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld jugador%2$@"
+          }
+        }
+      }
+    },
+    "%lld members" : {
+
+    },
+    "%lld-%lld-%lld" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld-%2$lld-%3$lld"
+          }
+        }
+      }
+    },
+    "%lld/%lld" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld/%2$lld"
+          }
+        }
+      }
+    },
+    "•" : {
+
+    },
+    "Add to Team" : {
+
+    },
+    "Agregar a mi equipo" : {
+
+    },
+    "Alineación" : {
+
+    },
+    "All Leagues" : {
+
+    },
     "auth_changeEmailSent" : {
 
     },
@@ -13,7 +79,22 @@
     "auth_sendAgain" : {
 
     },
+    "Browse and join leagues" : {
+
+    },
+    "Build your fantasy team and compete with friends" : {
+
+    },
+    "Cambiar Formación" : {
+
+    },
+    "Campo" : {
+
+    },
     "changeEmailCompletedTitle" : {
+
+    },
+    "Coming Soon" : {
 
     },
     "common_accept" : {
@@ -28,7 +109,25 @@
     "common_undo" : {
 
     },
+    "Completitud" : {
+
+    },
+    "Desasignar" : {
+
+    },
+    "Detalle del Equipo" : {
+
+    },
+    "Detalle del Jugador" : {
+
+    },
+    "Diferencia" : {
+
+    },
     "Documents" : {
+
+    },
+    "Edad" : {
 
     },
     "establishmentSelection_orderNow" : {
@@ -37,13 +136,148 @@
     "establishmentSelection_restaurantsTitle" : {
 
     },
+    "Estadísticas" : {
+
+    },
+    "Estadísticas del Equipo" : {
+
+    },
+    "Formación" : {
+
+    },
+    "Gestiona tu alineación y plantilla" : {
+
+    },
+    "Goles a favor" : {
+
+    },
+    "Goles en contra" : {
+
+    },
+    "Guardar Alineación" : {
+
+    },
     "Images" : {
+
+    },
+    "Información" : {
+
+    },
+    "Información Adicional" : {
+
+    },
+    "Join or create a league to get started" : {
+
+    },
+    "League discovery feature coming soon" : {
 
     },
     "Login" : {
 
     },
+    "Login feature coming soon" : {
+
+    },
+    "Logout" : {
+
+    },
+    "Mi Alineación" : {
+
+    },
+    "Mi Equipo" : {
+
+    },
+    "My Leagues" : {
+
+    },
+    "MyDreamTeam" : {
+
+    },
+    "Nacionalidad" : {
+
+    },
+    "No hay jugadores disponibles" : {
+
+    },
+    "No Leagues" : {
+
+    },
+    "No players available" : {
+
+    },
+    "No Players Found" : {
+
+    },
+    "Pie" : {
+
+    },
+    "Plantilla" : {
+
+    },
+    "Plantilla 2024/25" : {
+
+    },
+    "points" : {
+
+    },
+    "Posición" : {
+
+    },
+    "pts" : {
+
+    },
+    "Puntos" : {
+
+    },
+    "Rank #%lld" : {
+
+    },
     "registerCompletedTitle" : {
+
+    },
+    "Search players..." : {
+
+    },
+    "Seleccionar %@" : {
+
+    },
+    "Sign Up" : {
+
+    },
+    "Sign Up feature coming soon" : {
+
+    },
+    "Sin Jugadores" : {
+
+    },
+    "Stats" : {
+
+    },
+    "Try adjusting your search" : {
+
+    },
+    "Tu equipo está vacío. Crea una alineación para comenzar." : {
+
+    },
+    "Ver equipo" : {
+
+    },
+    "Ver lista de jugadores de tu equipo" : {
+
+    },
+    "View" : {
+
+    },
+    "View Profile" : {
+
+    },
+    "Visualiza tu equipo en el campo" : {
+
+    },
+    "W-D-L" : {
+
+    },
+    "Welcome to MyDreamTeam" : {
 
     }
   },

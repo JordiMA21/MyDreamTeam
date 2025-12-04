@@ -146,11 +146,11 @@ struct HomeView: View {
         VStack(spacing: 0) {
             // Header
             VStack(alignment: .leading, spacing: 8) {
-                Text("All Leagues")
+                Text("Mis Ligas")
                     .font(.system(size: 28, weight: .bold))
                     .foregroundColor(.primary)
 
-                Text("Browse and join leagues")
+                Text("Accede al mercado de subastas")
                     .font(.system(size: 14))
                     .foregroundColor(.secondary)
             }
@@ -158,26 +158,111 @@ struct HomeView: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
 
-            VStack(spacing: 20) {
-                Spacer()
+            // Leagues List
+            if viewModel.userLeagues.isEmpty {
+                VStack(spacing: 20) {
+                    Spacer()
 
-                Image(systemName: "trophy.fill")
-                    .font(.system(size: 60))
-                    .foregroundColor(.orange)
+                    Image(systemName: "trophy.fill")
+                        .font(.system(size: 60))
+                        .foregroundColor(.orange)
 
-                Text("Coming Soon")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(.primary)
+                    Text("Sin Ligas")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.primary)
 
-                Text("League discovery feature coming soon")
-                    .font(.system(size: 14))
-                    .foregroundColor(.secondary)
+                    Text("Únete a una liga para acceder al mercado")
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
 
-                Spacer()
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
+                    VStack(spacing: 12) {
+                        ForEach(viewModel.userLeagues) { league in
+                            leagueAuctionCard(league)
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+                }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(.systemBackground))
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(.systemBackground))
+    }
+
+    private func leagueAuctionCard(_ league: League) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(league.name)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(.primary)
+
+                    HStack(spacing: 20) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "person.2.fill")
+                                .font(.system(size: 12))
+                                .foregroundColor(.blue)
+                            Text("\(league.members) miembros")
+                                .font(.system(size: 12))
+                                .foregroundColor(.secondary)
+                        }
+
+                        HStack(spacing: 4) {
+                            Image(systemName: "gavel.fill")
+                                .font(.system(size: 12))
+                                .foregroundColor(.green)
+                            Text("8 subastas")
+                                .font(.system(size: 12))
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+
+                Spacer()
+
+                VStack(alignment: .trailing, spacing: 6) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "star.fill")
+                            .font(.system(size: 14))
+                            .foregroundColor(.orange)
+                        Text("#\(league.rank)")
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundColor(.primary)
+                    }
+
+                    Text("posición")
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            Divider()
+                .padding(.vertical, 4)
+
+            Button(action: {
+                viewModel.didSelectLeagueForAuction(league)
+            }) {
+                HStack {
+                    Image(systemName: "gavel.fill")
+                        .font(.system(size: 14, weight: .semibold))
+                    Text("Ir al Mercado de Subastas")
+                        .font(.system(size: 14, weight: .semibold))
+                }
+                .frame(maxWidth: .infinity)
+                .padding(10)
+                .background(Color.green)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+            }
+        }
+        .padding(16)
+        .background(Color(.systemGray6))
+        .cornerRadius(12)
     }
 
     private var loggedOutContent: some View {
