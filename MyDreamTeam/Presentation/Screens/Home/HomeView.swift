@@ -18,27 +18,117 @@ struct HomeView: View {
     }
 
     var body: some View {
+        ZStack {
+            if viewModel.isLoggedIn {
+                loggedInContent
+            } else {
+                loggedOutContent
+            }
+        }
+        .onAppear {
+            viewModel.setupLeagueManager()
+        }
+    }
+
+    // MARK: - Logged In Content
+
+    private var loggedInContent: some View {
         VStack(spacing: 0) {
             // Navigation Bar
             navBar
 
             // League Selector
-            if viewModel.isLoggedIn {
-                leagueSelectorBar
-            }
+            leagueSelectorBar
 
-            // Content Area based on selected tab
-            tabContent
-                .frame(maxHeight: .infinity)
+            // TabView
+            TabView(selection: $viewModel.selectedTab) {
+                // Tab 0: Inicio
+                homeTabContent
+                    .tabItem {
+                        Label("Inicio", systemImage: "house.fill")
+                    }
+                    .tag(0)
 
-            // Custom Tab Bar
-            if viewModel.isLoggedIn {
-                customTabBar
+                // Tab 1: Mi Equipo
+                MyTeamBuilder.build()
+                    .tabItem {
+                        Label("Mi Equipo", systemImage: "rectangle.grid.1x2.fill")
+                    }
+                    .tag(1)
+
+                // Tab 2: Clasificación
+                ClassificationBuilder.build()
+                    .tabItem {
+                        Label("Clasificación", systemImage: "list.number")
+                    }
+                    .tag(2)
+
+                // Tab 3: Subastas
+                AuctionMarketBuilder.build(leagueId: leagueManager.selectedLeagueId)
+                    .tabItem {
+                        Label("Subastas", systemImage: "gavel.fill")
+                    }
+                    .tag(3)
             }
         }
-        .ignoresSafeArea(edges: .top)
-        .onAppear {
-            viewModel.setupLeagueManager()
+    }
+
+    // MARK: - Logged Out Content
+
+    private var loggedOutContent: some View {
+        VStack(spacing: 20) {
+            Spacer()
+
+            Image(systemName: "person.crop.circle.badge.plus")
+                .font(.system(size: 80))
+                .foregroundColor(.blue)
+                .padding(.bottom, 20)
+
+            Text("Welcome to MyDreamTeam")
+                .font(.system(size: 24, weight: .semibold))
+                .foregroundColor(.primary)
+
+            Text("Build your fantasy team and compete with friends")
+                .font(.system(size: 16))
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
+                .padding(.bottom, 30)
+
+            // Login Button
+            Button(action: {
+                viewModel.didTapLogin()
+            }) {
+                Text("Login")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 56)
+                    .background(Color.blue)
+                    .cornerRadius(12)
+            }
+            .padding(.horizontal, 40)
+
+            // Sign Up Button
+            Button(action: {
+                viewModel.didTapSignUp()
+            }) {
+                Text("Sign Up")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.blue)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 56)
+                    .background(Color.blue.opacity(0.1))
+                    .cornerRadius(12)
+            }
+            .padding(.horizontal, 40)
+
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(.systemBackground))
+        .safeAreaInset(edge: .top) {
+            navBar
         }
     }
 
@@ -81,14 +171,12 @@ struct HomeView: View {
             .padding(.horizontal, 20)
         }
         .frame(height: 60)
-        .ignoresSafeArea(edges: .top)
     }
 
     // MARK: - League Selector Bar
 
     private var leagueSelectorBar: some View {
         VStack(spacing: 12) {
-            // League dropdown/selector
             Menu {
                 ForEach(viewModel.userLeagues) { league in
                     Button(action: {
@@ -145,28 +233,6 @@ struct HomeView: View {
         }
         .padding(.vertical, 12)
         .background(Color(.systemBackground))
-    }
-
-    // MARK: - Tab Content
-
-    @ViewBuilder
-    private var tabContent: some View {
-        if viewModel.isLoggedIn {
-            switch viewModel.selectedTab {
-            case 0:
-                homeTabContent
-            case 1:
-                MyTeamBuilder.build()
-            case 2:
-                ClassificationBuilder.build()
-            case 3:
-                AuctionMarketBuilder.build(leagueId: leagueManager.selectedLeagueId)
-            default:
-                homeTabContent
-            }
-        } else {
-            loggedOutContent
-        }
     }
 
     // MARK: - Home Tab Content
@@ -267,118 +333,6 @@ struct HomeView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(.systemBackground))
-    }
-
-    // MARK: - Logged Out Content
-
-    private var loggedOutContent: some View {
-        VStack(spacing: 20) {
-            Spacer()
-
-            Image(systemName: "person.crop.circle.badge.plus")
-                .font(.system(size: 80))
-                .foregroundColor(.blue)
-                .padding(.bottom, 20)
-
-            Text("Welcome to MyDreamTeam")
-                .font(.system(size: 24, weight: .semibold))
-                .foregroundColor(.primary)
-
-            Text("Build your fantasy team and compete with friends")
-                .font(.system(size: 16))
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 40)
-                .padding(.bottom, 30)
-
-            // Login Button
-            Button(action: {
-                viewModel.didTapLogin()
-            }) {
-                Text("Login")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 56)
-                    .background(Color.blue)
-                    .cornerRadius(12)
-            }
-            .padding(.horizontal, 40)
-
-            // Sign Up Button
-            Button(action: {
-                viewModel.didTapSignUp()
-            }) {
-                Text("Sign Up")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.blue)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 56)
-                    .background(Color.blue.opacity(0.1))
-                    .cornerRadius(12)
-            }
-            .padding(.horizontal, 40)
-
-            Spacer()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemBackground))
-    }
-
-    // MARK: - Custom Tab Bar
-
-    private var customTabBar: some View {
-        HStack(spacing: 0) {
-            ForEach(0..<4) { index in
-                tabBarItem(for: index)
-                    .frame(maxWidth: .infinity)
-            }
-        }
-        .frame(height: 60)
-        .background(Color(.systemBackground))
-        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: -2)
-        .ignoresSafeArea(edges: .bottom)
-    }
-
-    @ViewBuilder
-    private func tabBarItem(for index: Int) -> some View {
-        Button(action: {
-            viewModel.didSelectTab(index)
-        }) {
-            VStack(spacing: 4) {
-                Image(systemName: iconName(for: index))
-                    .font(.system(size: 24))
-                    .foregroundColor(viewModel.selectedTab == index ? .blue : .gray)
-
-                Text(title(for: index))
-                    .font(.system(size: 12))
-                    .foregroundColor(viewModel.selectedTab == index ? .blue : .gray)
-            }
-            .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-
-    // MARK: - Helper Methods
-
-    private func iconName(for index: Int) -> String {
-        switch index {
-        case 0: return "house.fill"
-        case 1: return "rectangle.grid.1x2.fill"
-        case 2: return "list.number"
-        case 3: return "gavel.fill"
-        default: return "questionmark"
-        }
-    }
-
-    private func title(for index: Int) -> String {
-        switch index {
-        case 0: return "Inicio"
-        case 1: return "Mi Equipo"
-        case 2: return "Clasificación"
-        case 3: return "Subastas"
-        default: return ""
-        }
     }
 }
 
